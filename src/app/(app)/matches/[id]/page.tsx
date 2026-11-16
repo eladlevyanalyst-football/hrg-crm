@@ -4,59 +4,25 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Modal from "@/components/Modal";
 import TaskBoard from "@/components/TaskBoard";
-import { useMe, usePlayers, useSupabase } from "@/lib/useData";
+import FileFolder from "@/components/FileFolder";
+import { useSupabase } from "@/lib/useData";
 import { FILE_CATEGORIES, fmtDate } from "@/lib/labels";
-import { openFile, uploadFile } from "@/lib/files";
-import type { DataImport, Match, MatchFile } from "@/lib/types";
+import type { DataImport, Match } from "@/lib/types";
 
 export default function MatchPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const sb = useSupabase();
-  const me = useMe();
-  const { rows: players } = usePlayers();
   const [m, setM] = useState<Match | null>(null);
-  const [files, setFiles] = useState<MatchFile[]>([]);
+  const [fileCount, setFileCount] = useState(0);
   const [imports, setImports] = useState<DataImport[]>([]);
-  const [tab, setTab] = useState("pre");
-  const [add, setAdd] = useState(false);
   const [editM, setEditM] = useState(false);
-  const [up, setUp] = useState({ title: "", link: "", player_id: "" });
-  const [fileList, setFileList] = useState<FileList | null>(null);
-  const [busy, setBusy] = useState(""); 
 
-  async function load() {
+  useEffect(() => {
     sb.from("matches").select("*").eq("id", id).single().then(({ data }) => setM(data));
-    sb.from("match_files").select("*").eq("match_id", id).order("created_at", { ascending: false }).then(({ data }) => setFiles(data || []));
     sb.from("data_imports").select("id,title,source,data_date").eq("match_id", id).then(({ data }) => setImports((data as DataImport[]) || []));
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { load(); }, [id]);
+  }, [id, sb]);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const base = { match_id: id, category: tab, player_id: up.player_id || null, uploaded_by: me?.id };
-    try {
-      if (fileList && fileList.length) {
-        for (let i = 0; i < fileList.length; i++) {
-          const file = fileList[i];
-          setBusy(`מעלה ${i + 1}/${fileList.length}: ${file.name}`);
-          const path = await uploadFile(sb, file, `matches/${id}/${tab}`);
-          await sb.from("match_files").insert({ ...base, title: fileList.length === 1 && up.title ? up.title : file.name, storage_path: path });
-        }
-      } else if (up.link) {
-        await sb.from("match_files").insert({ ...base, title: up.title || up.link, external_url: up.link });
-      }
-    } catch (err) {
-      alert("ההעלאה נכשלה: " + (err as Error).message + "\nקבצים גדולים מאוד (משחק מלא) עדיף להוסיף כקישור.");
-    }
-    setBusy(""); setAdd(false); setUp({ title: "", link: "", player_id: "" }); setFileList(null); load();
-  }
-  async function delFile(f: MatchFile) {
-    if (!confirm(`למחוק את "${f.title}"?`)) return;
-    if (f.storage_path) await sb.storage.from("files").remove([f.storage_path]);
-    await sb.from("match_files").delete().eq("id", f.id); load();
-  }
   async function saveMatch(e: React.FormEvent) {
     e.preventDefault(); if (!m) return;
     const { id: _id, ...rest } = m; void _id;
@@ -68,8 +34,6 @@ export default function MatchPage() {
   }
 
   if (!m) return <p>טוען...</p>;
-  const pname = (pid: string | null) => players.find((p) => p.id === pid)?.full_name;
-  const inTab = files.filter((f) => f.category === tab);
 
   return (
     <div className="space-y-4">
@@ -86,44 +50,15 @@ export default function MatchPage() {
         <div><span className="strip-label">מגרש</span><span className="strip-value">{m.home ? "בית" : "חוץ"}</span></div>
         <div><span className="strip-label">מסגרת</span><span className="strip-value">{m.competition || "–"}</span></div>
         {m.goals_for != null && <div><span className="strip-label">תוצאה</span><span className="strip-value text-2xl" dir="ltr">{m.goals_for} - {m.goals_against}</span></div>}
-        <div><span className="strip-label">קבצים</span><span className="strip-value">{files.length}</span></div>
+        <div><span className="strip-label">קבצים</span><span className="strip-value">{fileCount}</span></div>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        {Object.entries(FILE_CATEGORIES).map(([k, v]) => (
-          <button key={k} onClick={() => setTab(k)} className={`rounded border px-3 py-1.5 text-sm font-semibold ${tab === k ? "border-ink bg-ink text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}>
-            {v} <span className={`num text-xs ${tab === k ? "text-gray-300" : "text-gray-400"}`}>{files.filter((f) => f.category === k).length}</span></button>))}
-        <button onClick={() => setTab("tasks")} className={`rounded border px-3 py-1.5 text-sm font-semibold ${tab === "tasks" ? "border-brand bg-brand text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}>משימות למשחק</button>
-      </div>
-
-      {tab === "tasks" ? <TaskBoard matchId={id} /> : (
-        <div className="card">
-          <div className="mb-3 flex items-center justify-between"><h2 className="h2 mb-0">{FILE_CATEGORIES[tab]}</h2><button className="btn-primary" onClick={() => setAdd(true)}>+ העלאה / קישור</button></div>
-          {inTab.length === 0 && <p className="text-sm text-gray-500">התיקייה ריקה.</p>}
-          <ul className="divide-y">{inTab.map((f) => (
-            <li key={f.id} className="flex items-center gap-2 py-2 text-sm">
-              <span>{f.external_url ? "🔗" : "📄"}</span>
-              <button className="font-medium text-[var(--brand)] hover:underline" onClick={() => openFile(sb, f)}>{f.title}</button>
-              {f.player_id && <span className="chip bg-gray-100">{pname(f.player_id)}</span>}
-              <span className="text-gray-400">{fmtDate(f.created_at)}</span>
-              <button className="btn-danger mr-auto py-1" onClick={() => delFile(f)}>מחיקה</button>
-            </li>))}</ul>
-        </div>)}
+      <FileFolder matchId={id} categories={FILE_CATEGORIES} onCount={setFileCount}
+        extra={{ key: "tasks", label: "משימות למשחק", node: <TaskBoard matchId={id} /> }} />
 
       {imports.length > 0 && <div className="card"><h2 className="h2">נתונים מקושרים למשחק</h2>
         <ul className="text-sm">{imports.map((i) => <li key={i.id}><Link className="text-[var(--brand)] hover:underline" href={`/data/${i.id}`}>{i.title}</Link></li>)}</ul></div>}
 
-      <Modal open={add} onClose={() => setAdd(false)} title={`הוספה ל${FILE_CATEGORIES[tab] || ""}`}>
-        <form onSubmit={submit} className="space-y-3">
-          <div><label className="label">קבצים מהמחשב (אפשר כמה)</label><input type="file" multiple className="input" onChange={(e) => setFileList(e.target.files)} /></div>
-          <div className="text-center text-xs text-gray-400">או</div>
-          <div><label className="label">קישור (Drive, Wyscout, YouTube...)</label><input className="input" dir="ltr" type="url" value={up.link} onChange={(e) => setUp({ ...up, link: e.target.value })} /></div>
-          <div><label className="label">כותרת (לא חובה)</label><input className="input" value={up.title} onChange={(e) => setUp({ ...up, title: e.target.value })} /></div>
-          <div><label className="label">שחקן (לווידאו אישי)</label><select className="input" value={up.player_id} onChange={(e) => setUp({ ...up, player_id: e.target.value })}><option value="">-</option>{players.map((p) => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select></div>
-          {busy && <p className="text-sm text-gray-600">{busy}</p>}
-          <button className="btn-primary w-full" disabled={!!busy || (!fileList?.length && !up.link)}>הוספה</button>
-        </form>
-      </Modal>
       <Modal open={editM} onClose={() => setEditM(false)} title="עריכת משחק">
         <form onSubmit={saveMatch} className="grid grid-cols-2 gap-3">
           <div className="col-span-2"><label className="label">יריבה</label><input className="input" value={m.opponent} onChange={(e) => setM({ ...m, opponent: e.target.value })} /></div>

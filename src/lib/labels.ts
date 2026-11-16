@@ -1,11 +1,22 @@
 export const FILE_CATEGORIES: Record<string, string> = {
   pre: "פרי מאטצ'",
   post: "פוסט מאטצ'",
+  full: "משחקים מלאים",
   animations: "אנימציות",
-  full: "משחק מלא",
-  reports: "דוחות",
+  clips: "קטעי וידאו",
+  setpieces: "נייחים",
+  ideas: "רעיונות",
   individual: "וידאו אישי",
+  reports: "דוחות",
   other: "אחר",
+};
+/** Video library (files not tied to a match). */
+export const LIBRARY_CATEGORIES: Record<string, string> = {
+  world: "תוכן מהעולם",
+  animations: "אנימציות כלליות",
+  individual: "וידאו אישי",
+  ideas: "רעיונות",
+  other: "וידאו כללי",
 };
 export const EVENT_KINDS: Record<string, { label: string; color: string }> = {
   training: { label: "אימון", color: "bg-green-100 text-green-800" },

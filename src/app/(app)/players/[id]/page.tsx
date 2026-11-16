@@ -6,7 +6,7 @@ import Bars from "@/components/Bars";
 import Modal from "@/components/Modal";
 import PlayerForm from "@/components/PlayerForm";
 import { useSupabase } from "@/lib/useData";
-import { AVAILABILITY, FILE_CATEGORIES, age, fmtDate, scoreColor, wellnessScore } from "@/lib/labels";
+import { AVAILABILITY, FILE_CATEGORIES, LIBRARY_CATEGORIES, age, fmtDate, scoreColor, wellnessScore } from "@/lib/labels";
 import type { DataImport, MatchFile, Player, Rpe, Wellness } from "@/lib/types";
 import { openFile } from "@/lib/files";
 
@@ -110,7 +110,7 @@ export default function PlayerPage() {
         <h2 className="h2">וידאו וקבצים אישיים</h2>
         {files.length === 0 && <p className="text-sm text-gray-500">אין קבצים אישיים. אפשר להעלות מתוך תיק משחק ולבחור את השחקן.</p>}
         <ul className="space-y-1 text-sm">{files.map((f) => (
-          <li key={f.id}><button className="text-[var(--brand)] hover:underline" onClick={() => openFile(sb, f)}>{f.title}</button> <span className="text-gray-400">· {FILE_CATEGORIES[f.category]} · {fmtDate(f.created_at)}</span></li>))}</ul>
+          <li key={f.id}><button className="text-[var(--brand)] hover:underline" onClick={() => openFile(sb, f)}>{f.title}</button> <span className="text-gray-400">· {FILE_CATEGORIES[f.category] || LIBRARY_CATEGORIES[f.category]} · {fmtDate(f.created_at)}</span></li>))}</ul>
       </div>
 
       <Modal open={edit} onClose={() => setEdit(false)} title="עריכת שחקן" wide>

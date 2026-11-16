@@ -13,6 +13,7 @@ const ITEMS: Item[] = [
   { href: "/tasks", label: "משימות צוות", icon: "tasks" },
   { href: "/players", label: "שחקנים", icon: "players" },
   { href: "/matches", label: "תיקי משחקים", icon: "folder" },
+  { href: "/library", label: "ספריית וידאו", icon: "film" },
   {
     href: "/perf", label: "ביצועים ונתונים", icon: "pulse", children: [
       { href: "/data?source=gps", label: "נתוני GPS", icon: "gps" },
