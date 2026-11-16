@@ -39,6 +39,8 @@ export default function PlayerForm({ player, onSaved }: { player?: Player | null
       {field("contract_until", "חוזה עד", "date")}
       {field("agent", "סוכן")}
       {field("photo_url", "קישור לתמונה", "url", true)}
+      <div><label className="label">מצב</label><select className="input" value={f.availability || "available"} onChange={(e) => set("availability", e.target.value)}><option value="available">זמין</option><option value="doubtful">בספק</option><option value="injured">פצוע</option></select></div>
+      {field("injury_note", "פירוט פציעה")}
       <div className="col-span-2"><label className="label">הערות</label><textarea className="input" rows={3} value={f.notes || ""} onChange={(e) => set("notes", e.target.value)} /></div>
       <label className="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" checked={f.active ?? true} onChange={(e) => set("active", e.target.checked)} /> שחקן פעיל בסגל</label>
       <button className="btn-primary col-span-2" disabled={busy}>{busy ? "שומר..." : "שמירה"}</button>

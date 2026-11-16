@@ -52,7 +52,7 @@ export default function Scouting() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="h1">פינת סקאוטינג</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2"><div><h1 className="h1">פינת סקאוטינג</h1><p className="sub">הרשימות, השחקנים שבמעקב והדוחות שלנו במקום אחד.</p></div>
         <div className="flex gap-2"><button className="btn-ghost" onClick={addList}>+ רשימה</button>
           <button className="btn-primary" onClick={() => setEdit({ full_name: "", status: "watching", list_id: list || null })}>+ שחקן במעקב</button></div></div>
 

@@ -6,7 +6,7 @@ import Bars from "@/components/Bars";
 import Modal from "@/components/Modal";
 import PlayerForm from "@/components/PlayerForm";
 import { useSupabase } from "@/lib/useData";
-import { FILE_CATEGORIES, age, fmtDate, scoreColor, wellnessScore } from "@/lib/labels";
+import { AVAILABILITY, FILE_CATEGORIES, age, fmtDate, scoreColor, wellnessScore } from "@/lib/labels";
 import type { DataImport, MatchFile, Player, Rpe, Wellness } from "@/lib/types";
 import { openFile } from "@/lib/files";
 
@@ -55,12 +55,14 @@ export default function PlayerPage() {
 
   return (
     <div className="space-y-4">
+      <div className="flex gap-2"><Link href="/players" className="btn-ghost text-xs">→ כל השחקנים</Link></div>
       <div className="flex flex-wrap items-center gap-4">
-        {p.photo_url ? <img src={p.photo_url} alt="" className="h-20 w-20 rounded-full object-cover" /> :
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--brand)] text-2xl font-bold text-white">{p.shirt_number ?? "?"}</div>}
+        {p.photo_url ? <img src={p.photo_url} alt="" className="h-24 w-24 rounded-md object-cover" /> :
+          <div className="flex h-24 w-24 items-center justify-center rounded-md bg-gray-200 font-display text-4xl font-bold text-gray-400">{p.shirt_number ?? "?"}</div>}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">{p.full_name}</h1>
-          <div className="text-sm text-gray-500">{[p.position, age(p.birth_date) && `גיל ${age(p.birth_date)}`, p.nationality, p.foot && `רגל ${p.foot}`].filter(Boolean).join(" · ")}</div>
+          <h1 className="h1">{p.full_name}</h1>
+          <div className="mt-1 text-sm text-gray-500">#{p.shirt_number ?? "-"} · {[p.position, age(p.birth_date) && `גיל ${age(p.birth_date)}`, p.nationality, p.foot && `רגל ${p.foot}`].filter(Boolean).join(" · ")}</div>
+          <span className={`chip mt-2 ${AVAILABILITY[p.availability || "available"]?.color}`}>{AVAILABILITY[p.availability || "available"]?.label}{p.injury_note ? ` · ${p.injury_note}` : ""}</span>
         </div>
         <button className="btn-ghost" onClick={() => setEdit(true)}>עריכה</button>
         <button className="btn-danger" onClick={del}>מחיקה</button>
@@ -68,7 +70,7 @@ export default function PlayerPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card text-sm space-y-1">
-          <h2 className="h2">פרטים אישיים</h2>
+          <div className="panel-head">פרטים אישיים</div>
           <div>טלפון: <span dir="ltr">{p.phone}</span></div>
           <div>אימייל: <span dir="ltr">{p.email}</span></div>
           <div>תאריך לידה: {fmtDate(p.birth_date)}</div>
@@ -78,11 +80,11 @@ export default function PlayerPage() {
           {p.notes && <p className="whitespace-pre-wrap pt-2 text-gray-600">{p.notes}</p>}
         </div>
         <div className="card md:col-span-2">
-          <h2 className="h2">וולבינג (28 ימים)</h2>
-          <Bars data={well.map((w) => { const s = wellnessScore(w) || 0; return { label: w.entry_date.slice(5), value: s, color: s >= 75 ? "#16a34a" : s >= 55 ? "#ca8a04" : "#dc2626" }; })} unit="%" />
+          <div className="panel-head">וולבינג · 28 ימים</div>
+          <Bars showAvg={false} data={well.map((w) => { const s = wellnessScore(w) || 0; return { label: w.entry_date.slice(5), value: s, color: s >= 75 ? "#16a34a" : s >= 55 ? "#ca8a04" : "#dc2626" }; })} unit="%" />
         </div>
         <div className="card md:col-span-3">
-          <h2 className="h2">עומס RPE יומי (RPE × דקות)</h2>
+          <div className="panel-head">עומס RPE יומי · RPE × דקות</div>
           <Bars data={Object.entries(loadByDay).map(([d, v]) => ({ label: d.slice(5), value: v }))} />
         </div>
       </div>

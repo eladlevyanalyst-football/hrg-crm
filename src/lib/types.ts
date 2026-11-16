@@ -4,6 +4,7 @@ export type Player = {
   birth_date: string | null; nationality: string | null; phone: string | null; email: string | null;
   height_cm: number | null; weight_kg: number | null; foot: string | null; contract_until: string | null;
   agent: string | null; notes: string | null; photo_url: string | null; active: boolean;
+  availability: string | null; injury_note: string | null;
 };
 export type Match = {
   id: string; round: string | null; opponent: string; match_date: string | null; home: boolean;

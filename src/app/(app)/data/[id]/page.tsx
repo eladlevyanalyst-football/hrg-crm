@@ -51,24 +51,45 @@ export default function DataView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Link href="/data" className="text-sm text-gray-500">→ נתונים</Link>
-        <h1 className="text-2xl font-bold">{d.title}</h1>
-        <span className="text-sm text-gray-500">{DATA_SOURCES[d.source]} · {fmtDate(d.data_date)} · {d.rows.length} שורות</span>
-        <button className="btn-danger mr-auto" onClick={del}>מחיקה</button>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <Link href={d.source === "gps" ? "/data?source=gps" : "/data?source=stats"} className="text-xs font-semibold text-gray-500">→ {d.source === "gps" ? "נתוני GPS" : "נתוני דאטה"}</Link>
+          <h1 className="h1 mt-1">{d.title}</h1>
+        </div>
+        <button className="btn-danger" onClick={del}>מחיקה</button>
       </div>
+      <div className="strip">
+        <div><span className="strip-label">מקור</span><span className="strip-value">{DATA_SOURCES[d.source]}</span></div>
+        <div><span className="strip-label">תאריך</span><span className="strip-value">{fmtDate(d.data_date) || "–"}</span></div>
+        <div><span className="strip-label">שורות</span><span className="strip-value">{d.rows.length}</span></div>
+        <div><span className="strip-label">מדדים</span><span className="strip-value">{numeric.length}</span></div>
+      </div>
+      {numeric.length > 0 && <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        {numeric.slice(0, 6).map((c) => {
+          const vals = d.rows.map((r) => r[c]).filter((v): v is number => typeof v === "number");
+          const sum = vals.reduce((a, b) => a + b, 0);
+          const mean = vals.length ? sum / vals.length : 0;
+          const big = Math.abs(mean) >= 50;
+          return (
+            <button key={c} onClick={() => setMetric(c)} className={`kpi text-right ${metric === c ? "ring-2 ring-brand" : ""}`}>
+              <div className="kpi-label truncate">{c}</div>
+              <div className="kpi-value text-3xl">{(big ? sum : mean).toLocaleString("he-IL", { maximumFractionDigits: 1 })}</div>
+              <div className="kpi-sub">{big ? `סה״כ · ממוצע ${mean.toLocaleString("he-IL", { maximumFractionDigits: 1 })}` : `ממוצע · שיא ${Math.max(...vals)}`}</div>
+            </button>);
+        })}
+      </div>}
       {numeric.length > 0 && <div className="card">
-        <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
-          <span>גרף:</span>
-          <select className="input w-56" value={metric} onChange={(e) => setMetric(e.target.value)}>{numeric.map((c) => <option key={c}>{c}</option>)}</select>
-          <span>לפי</span>
-          <select className="input w-48" value={labelCol} onChange={(e) => setLabelCol(e.target.value)}>{d.columns.map((c) => <option key={c}>{c}</option>)}</select>
-          <span className="text-gray-500">ממוצע: <b>{Math.round(avg * 10) / 10}</b></span>
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+          <h2 className="h2 mb-0 ml-2">{metric}</h2>
+          <span className="text-gray-500">לפי</span>
+          <select className="input w-44" value={labelCol} onChange={(e) => setLabelCol(e.target.value)}>{d.columns.map((c) => <option key={c}>{c}</option>)}</select>
+          <select className="input w-52" value={metric} onChange={(e) => setMetric(e.target.value)}>{numeric.map((c) => <option key={c}>{c}</option>)}</select>
+          <span className="text-gray-500">ממוצע: <b className="num">{Math.round(avg * 10) / 10}</b></span>
         </div>
         <Bars data={chart} height={200} />
       </div>}
-      <div className="card overflow-x-auto">
-        <input className="input mb-2 w-60" placeholder="סינון..." value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="overflow-x-auto rounded-md border border-gray-200 bg-white">
+        <div className="p-2"><input className="input w-60" placeholder="סינון..." value={q} onChange={(e) => setQ(e.target.value)} /></div>
         <table className="tbl">
           <thead><tr>{d.columns.map((c) => <th key={c} className="cursor-pointer select-none" onClick={() => setSort({ col: c, asc: sort?.col === c ? !sort.asc : false })}>{c}{sort?.col === c ? (sort.asc ? " ▲" : " ▼") : ""}</th>)}</tr></thead>
           <tbody>{rows.map((r, i) => <tr key={i} className="hover:bg-gray-50">{d.columns.map((c) => <td key={c} className="whitespace-nowrap">{String(r[c] ?? "")}</td>)}</tr>)}</tbody>

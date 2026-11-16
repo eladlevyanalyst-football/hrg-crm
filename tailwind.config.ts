@@ -10,8 +10,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        brand: { DEFAULT: "#d4001a", dark: "#a30014", soft: "#fde8ea" },
+        ink: { DEFAULT: "#0e0e10", 2: "#1b1b1f", 3: "#2a2a30" },
+      },
+      fontFamily: {
+        sans: ["Heebo", "Arial", "sans-serif"],
+        display: ['"Barlow Condensed"', "Heebo", "Arial", "sans-serif"],
       },
     },
   },

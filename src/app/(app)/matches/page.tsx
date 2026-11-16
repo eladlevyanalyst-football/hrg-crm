@@ -22,7 +22,7 @@ export default function Matches() {
 
   return (
     <div>
-      <div className="flex items-center justify-between"><h1 className="h1">תיקי משחקים</h1>
+      <div className="flex items-center justify-between"><div><h1 className="h1">תיקי משחקים</h1><p className="sub">תיק לכל משחק: פרי מאטצ', פוסט מאטצ', אנימציות, משחק מלא, דוחות ווידאו אישי.</p></div>
         <button className="btn-primary" onClick={() => setF({ opponent: "", home: true, competition: "ליגת העל" })}>+ משחק</button></div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((m) => (

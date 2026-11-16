@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Crest from "@/components/Crest";
 
 type P = { id: string; full_name: string; shirt_number: number | null };
 const SCALES: { key: string; label: string; low: string; high: string }[] = [
@@ -49,7 +50,7 @@ export default function PlayerForm() {
   if (!players) return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <form className="card w-full max-w-sm space-y-3" onSubmit={(e) => { e.preventDefault(); enter(code); }}>
-        <h1 className="text-xl font-bold">HRG · דיווח שחקנים</h1>
+        <div className="flex items-center gap-3"><Crest size={30} /><h1 className="font-display text-2xl font-bold">הפועל רמת גן · דיווח</h1></div>
         <div><label className="label">קוד קבוצה</label><input className="input" dir="ltr" value={code} onChange={(e) => setCode(e.target.value)} /></div>
         {err && <p className="text-sm text-red-600">{err}</p>}
         <button className="btn-primary w-full">כניסה</button>
@@ -59,7 +60,7 @@ export default function PlayerForm() {
   const wellReady = pid && SCALES.every((s) => w[s.key]);
   return (
     <div className="mx-auto max-w-md p-4">
-      <h1 className="mb-3 text-xl font-bold">HRG · דיווח שחקנים</h1>
+      <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 bg-ink px-4 py-3 text-white"><Crest size={30} /><div><div className="font-display text-xl font-bold leading-none">הפועל רמת גן</div><div className="text-[11px] text-gray-400">דיווח שחקנים</div></div></div>
       <form onSubmit={send} className="space-y-4">
         <div className="card">
           <label className="label">מי אתה?</label>

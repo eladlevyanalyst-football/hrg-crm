@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import { useMe, useTable } from "@/lib/useData";
 import { DATA_SOURCES, fmtDate, todayISO } from "@/lib/labels";
@@ -12,8 +13,11 @@ export default function DataPage() {
   const { rows: matches } = useTable<Match>("matches", "match_date", false);
   const me = useMe();
   const [open, setOpen] = useState(false);
-  const [src, setSrc] = useState("all");
-  const [f, setF] = useState({ source: "gps", title: "", data_date: todayISO(), match_id: "" });
+  const sp = useSearchParams();
+  const router = useRouter();
+  const src = sp.get("source") || "all";
+  const setSrc = (v: string) => router.replace(v === "all" ? "/data" : `/data?source=${v}`);
+  const [f, setF] = useState({ source: src === "stats" ? "opta" : "gps", title: "", data_date: todayISO(), match_id: "" });
   const [file, setFile] = useState<File | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,16 +34,18 @@ export default function DataPage() {
     } catch (x) { setErr((x as Error).message); }
     setBusy(false);
   }
-  const list = rows.filter((r) => src === "all" || r.source === src);
+  const list = rows.filter((r) => src === "all" || (src === "stats" ? r.source !== "gps" : r.source === src));
+  const title = src === "gps" ? "נתוני GPS" : src === "stats" ? "נתוני דאטה" : "כל הנתונים";
+  const sub = src === "gps" ? "קבצי ייצוא מ-K-Sport: אימונים ומשחקים." : src === "stats" ? "נתוני Opta, TruMedia ו-Wyscout שיובאו מקבצים." : "כל הקבצים שיובאו למערכת.";
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="h1">נתונים ו-GPS</h1>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3"><div><h1 className="h1">{title}</h1><p className="sub mb-0">{sub}</p></div>
         <div className="flex gap-2">
-          <select className="input w-40" value={src} onChange={(e) => setSrc(e.target.value)}><option value="all">כל המקורות</option>{Object.entries(DATA_SOURCES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
+          <div className="seg"><button className={src === "gps" ? "on" : ""} onClick={() => setSrc("gps")}>GPS</button><button className={src === "stats" ? "on" : ""} onClick={() => setSrc("stats")}>דאטה</button><button className={src === "all" ? "on" : ""} onClick={() => setSrc("all")}>הכל</button></div>
           <button className="btn-primary" onClick={() => setOpen(true)}>+ ייבוא קובץ</button>
         </div></div>
-      <div className="card overflow-x-auto">
+      <div className="overflow-x-auto rounded-md border border-gray-200 bg-white">
         <table className="tbl"><thead><tr><th>תאריך</th><th>מקור</th><th>כותרת</th><th>משחק</th><th>עמודות</th></tr></thead>
           <tbody>{list.map((r) => (
             <tr key={r.id} className="hover:bg-gray-50">

@@ -59,25 +59,25 @@ export default function Calendar() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-bold">לוח שנה</h1>
+        <div><h1 className="h1">לוח שנה</h1><p className="sub mb-0">לו״ז שבועי וחודשי: אימונים, משחקים, פגישות וימי חופש.</p></div>
         <div className="mr-auto flex items-center gap-2">
           <button className="btn-ghost" onClick={() => move(-1)}>→</button>
           <span className="min-w-36 text-center font-medium">{title}</span>
           <button className="btn-ghost" onClick={() => move(1)}>←</button>
           <button className="btn-ghost" onClick={() => setCursor(new Date())}>היום</button>
-          <select className="input w-24" value={view} onChange={(e) => setView(e.target.value as "month" | "week")}><option value="week">שבועי</option><option value="month">חודשי</option></select>
+          <div className="seg"><button className={view === "week" ? "on" : ""} onClick={() => setView("week")}>שבועי</button><button className={view === "month" ? "on" : ""} onClick={() => setView("month")}>חודשי</button></div>
           <button className="btn-primary" onClick={() => newEvent(new Date())}>+ אירוע</button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl border bg-gray-200">
-        {DAYS.map((d) => <div key={d} className="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">{d}</div>)}
+      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-md border bg-gray-200">
+        {DAYS.map((d) => <div key={d} className="bg-ink py-2 text-center text-xs font-bold text-white">{d}</div>)}
         {range.map((d) => {
           const out = view === "month" && d.getMonth() !== cursor.getMonth();
           return (
             <div key={d.toISOString()} onDoubleClick={() => newEvent(d)}
               className={`bg-white p-1 ${view === "week" ? "min-h-[60vh]" : "min-h-24"} ${out ? "opacity-40" : ""}`}>
-              <div className={`mb-1 text-xs ${ymd(d) === today ? "inline-block rounded-full bg-[var(--brand)] px-1.5 text-white" : "text-gray-500"}`}>{d.getDate()}</div>
+              <div className={`mb-1 text-xs ${ymd(d) === today ? "inline-block rounded bg-brand px-1.5 font-bold text-white" : "text-gray-500"}`}>{d.getDate()}</div>
               <div className="space-y-1">{dayEvents(d).map((e) => (
                 <button key={e.id} onClick={() => setEdit(e)} className={`block w-full truncate rounded px-1 py-0.5 text-right text-xs ${EVENT_KINDS[e.kind]?.color}`}>
                   {fmtTime(e.starts_at)} {e.title}{view === "week" && e.location ? ` · ${e.location}` : ""}

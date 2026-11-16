@@ -41,7 +41,7 @@ export default function TaskBoard({ matchId }: { matchId?: string }) {
       </div>
       <div className="grid gap-3 md:grid-cols-3">
         {Object.entries(TASK_STATUS).map(([st, label]) => (
-          <div key={st} className="rounded-xl bg-gray-100 p-2" onDragOver={(e) => e.preventDefault()} onDrop={(e) => moveTo(e.dataTransfer.getData("id"), st)}>
+          <div key={st} className="rounded-md bg-gray-100 p-2" onDragOver={(e) => e.preventDefault()} onDrop={(e) => moveTo(e.dataTransfer.getData("id"), st)}>
             <div className="mb-2 px-1 text-sm font-semibold text-gray-600">{label} ({list.filter((t) => t.status === st).length})</div>
             <div className="min-h-20 space-y-2">
               {list.filter((t) => t.status === st).map((t) => (

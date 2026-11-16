@@ -53,7 +53,7 @@ export default function LineupPage() {
 
   return (
     <div>
-      <h1 className="h1">מגרש הרכבים</h1>
+      <h1 className="h1">מגרש הרכבים</h1><p className="sub">בונים הרכב וסגל: בוחרים מערך, לוחצים על עמדה ואז על שחקן, או גוררים.</p>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <select className="input w-52" value={cur.id} onChange={(e) => { const l = saved.find((s) => s.id === e.target.value); setCur(l || { id: "", name: "הרכב חדש", formation: "4-3-3", slots: build("4-3-3"), bench: [], match_id: null }); }}>
           <option value="">+ הרכב חדש</option>{saved.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -67,7 +67,7 @@ export default function LineupPage() {
 
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
         <div className="mx-auto w-full max-w-md">
-          <div className="relative aspect-[68/100] w-full overflow-hidden rounded-xl border-4 border-white shadow" dir="ltr"
+          <div className="relative aspect-[68/100] w-full overflow-hidden rounded-md border-4 border-white shadow" dir="ltr"
             style={{ background: "repeating-linear-gradient(0deg,#2f8f3a 0 10%,#36a043 10% 20%)" }}>
             <div className="absolute inset-x-0 top-1/2 h-0.5 bg-white/70" />
             <div className="absolute left-1/2 top-1/2 h-[18%] w-[26%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/70" />

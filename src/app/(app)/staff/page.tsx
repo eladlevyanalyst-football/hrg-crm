@@ -29,7 +29,7 @@ export default function StaffPage() {
 
   return (
     <div className="max-w-3xl">
-      <div className="flex items-center justify-between"><h1 className="h1">אנשי צוות</h1>
+      <div className="flex items-center justify-between"><div><h1 className="h1">אנשי צוות</h1><p className="sub">מי נכנס למערכת. רק מנהל יכול להוסיף ולהסיר.</p></div>
         {isAdmin && <button className="btn-primary" onClick={() => setOpen(true)}>+ הוספת איש צוות</button>}</div>
       <div className="card overflow-x-auto">
         <table className="tbl">

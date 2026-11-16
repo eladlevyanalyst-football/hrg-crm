@@ -169,6 +169,10 @@ create table if not exists lineups (
   created_at timestamptz default now()
 );
 
+-- Added after v1 (safe to re-run)
+alter table players add column if not exists availability text default 'available'; -- available | doubtful | injured
+alter table players add column if not exists injury_note text;
+
 -- Row level security: any logged-in staff member can read and write everything.
 do $$
 declare t text;

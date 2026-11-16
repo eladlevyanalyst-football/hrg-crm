@@ -13,6 +13,7 @@ export const EVENT_KINDS: Record<string, { label: string; color: string }> = {
   gym: { label: "חדר כושר", color: "bg-orange-100 text-orange-800" },
   meeting: { label: "פגישה", color: "bg-blue-100 text-blue-800" },
   travel: { label: "נסיעה", color: "bg-purple-100 text-purple-800" },
+  off: { label: "חופש", color: "bg-emerald-100 text-emerald-800" },
   other: { label: "אחר", color: "bg-gray-100 text-gray-800" },
 };
 export const TASK_STATUS: Record<string, string> = { todo: "לביצוע", doing: "בעבודה", done: "בוצע" };
@@ -69,3 +70,18 @@ export function scoreColor(s: number | null) {
   if (s >= 55) return "bg-yellow-100 text-yellow-800";
   return "bg-red-100 text-red-800";
 }
+
+export const AVAILABILITY: Record<string, { label: string; color: string }> = {
+  available: { label: "זמין", color: "bg-green-100 text-green-800" },
+  doubtful: { label: "בספק", color: "bg-yellow-100 text-yellow-800" },
+  injured: { label: "פצוע", color: "bg-brand-soft text-brand" },
+};
+/** Position groups for the squad view, in pitch order. */
+export const POSITION_GROUPS: { title: string; match: string[] }[] = [
+  { title: "שוערים", match: ["שוער"] },
+  { title: "בלמים", match: ["בלם"] },
+  { title: "מגנים", match: ["מגן ימני", "מגן שמאלי"] },
+  { title: "קשרים", match: ["קשר אחורי", "קשר", "קשר התקפי"] },
+  { title: "כנפיים", match: ["כנף ימין", "כנף שמאל"] },
+  { title: "חלוצים", match: ["חלוץ"] },
+];

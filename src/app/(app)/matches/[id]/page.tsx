@@ -73,19 +73,27 @@ export default function MatchPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Link href="/matches" className="text-sm text-gray-500">→ תיקי משחקים</Link>
-        <h1 className="text-2xl font-bold">{m.home ? "בית" : "חוץ"} מול {m.opponent}</h1>
-        {m.goals_for != null && <span className="text-xl font-bold" dir="ltr">{m.goals_for}-{m.goals_against}</span>}
-        <span className="text-sm text-gray-500">מחזור {m.round || "-"} · {fmtDate(m.match_date)}</span>
-        <div className="mr-auto flex gap-2"><button className="btn-ghost" onClick={() => setEditM(true)}>עריכה</button><button className="btn-danger" onClick={delMatch}>מחיקה</button></div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <Link href="/matches" className="text-xs font-semibold text-gray-500">→ תיקי משחקים</Link>
+          <h1 className="h1 mt-1">{m.home ? `הפועל ר״ג – ${m.opponent}` : `${m.opponent} – הפועל ר״ג`}</h1>
+        </div>
+        <div className="flex gap-2"><button className="btn-ghost" onClick={() => setEditM(true)}>עריכה</button><button className="btn-danger" onClick={delMatch}>מחיקה</button></div>
+      </div>
+      <div className="strip">
+        <div><span className="strip-label">מחזור</span><span className="strip-value">{m.round || "–"}</span></div>
+        <div><span className="strip-label">תאריך</span><span className="strip-value">{fmtDate(m.match_date) || "–"}</span></div>
+        <div><span className="strip-label">מגרש</span><span className="strip-value">{m.home ? "בית" : "חוץ"}</span></div>
+        <div><span className="strip-label">מסגרת</span><span className="strip-value">{m.competition || "–"}</span></div>
+        {m.goals_for != null && <div><span className="strip-label">תוצאה</span><span className="strip-value text-2xl" dir="ltr">{m.goals_for} - {m.goals_against}</span></div>}
+        <div><span className="strip-label">קבצים</span><span className="strip-value">{files.length}</span></div>
       </div>
 
-      <div className="flex flex-wrap gap-1 border-b">
+      <div className="flex flex-wrap gap-1.5">
         {Object.entries(FILE_CATEGORIES).map(([k, v]) => (
-          <button key={k} onClick={() => setTab(k)} className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === k ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent text-gray-600"}`}>
-            {v} <span className="text-xs text-gray-400">({files.filter((f) => f.category === k).length})</span></button>))}
-        <button onClick={() => setTab("tasks")} className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === "tasks" ? "border-[var(--brand)] font-semibold text-[var(--brand)]" : "border-transparent text-gray-600"}`}>משימות</button>
+          <button key={k} onClick={() => setTab(k)} className={`rounded border px-3 py-1.5 text-sm font-semibold ${tab === k ? "border-ink bg-ink text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}>
+            {v} <span className={`num text-xs ${tab === k ? "text-gray-300" : "text-gray-400"}`}>{files.filter((f) => f.category === k).length}</span></button>))}
+        <button onClick={() => setTab("tasks")} className={`rounded border px-3 py-1.5 text-sm font-semibold ${tab === "tasks" ? "border-brand bg-brand text-white" : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}>משימות למשחק</button>
       </div>
 
       {tab === "tasks" ? <TaskBoard matchId={id} /> : (
