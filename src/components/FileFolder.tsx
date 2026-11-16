@@ -8,7 +8,13 @@ import type { MatchFile } from "@/lib/types";
 
 type Extra = { key: string; label: string; node: React.ReactNode };
 
+/** Google Drive file id from a Drive link, so it can play inside the site. */
+export function driveId(url?: string | null) {
+  return url?.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]+)/)?.[1] || null;
+}
+
 function kindIcon(f: MatchFile) {
+  if (driveId(f.external_url)) return "▶️";
   if (f.external_url) return "🔗";
   const ext = (f.storage_path || "").split(".").pop()?.toLowerCase() || "";
   if (["mp4", "mov", "m4v", "webm"].includes(ext)) return "🎬";
@@ -36,6 +42,7 @@ export default function FileFolder({ matchId, categories, extra, onCount }: {
   const [fileList, setFileList] = useState<FileList | null>(null);
   const [busy, setBusy] = useState("");
   const [q, setQ] = useState("");
+  const [play, setPlay] = useState<MatchFile | null>(null);
 
   async function load() {
     let query = sb.from("match_files").select("*");
@@ -110,12 +117,21 @@ export default function FileFolder({ matchId, categories, extra, onCount }: {
           <ul className="divide-y">{inTab.map((f) => (
             <li key={f.id} className="flex items-center gap-2 py-2 text-sm">
               <span>{kindIcon(f)}</span>
-              <button className="text-right font-medium text-[var(--brand)] hover:underline" onClick={() => openFile(sb, f)}>{f.title}</button>
+              <button className="text-right font-medium text-[var(--brand)] hover:underline" onClick={() => (driveId(f.external_url) ? setPlay(f) : openFile(sb, f))}>{f.title}</button>
               {f.player_id && <span className="chip bg-gray-100">{pname(f.player_id)}</span>}
               <span className="text-gray-400">{fmtDate(f.created_at)}</span>
               <button className="btn-danger mr-auto py-1" onClick={() => delFile(f)}>מחיקה</button>
             </li>))}</ul>
         </div>)}
+
+      <Modal open={!!play} onClose={() => setPlay(null)} title={play?.title || ""} wide>
+        {play && <>
+          <div className="aspect-video w-full overflow-hidden rounded bg-black">
+            <iframe src={`https://drive.google.com/file/d/${driveId(play.external_url)}/preview`} className="h-full w-full" allow="autoplay; fullscreen" allowFullScreen />
+          </div>
+          <a className="mt-2 inline-block text-sm text-[var(--brand)] hover:underline" href={play.external_url || "#"} target="_blank" rel="noreferrer">פתיחה בגוגל דרייב ↗</a>
+        </>}
+      </Modal>
 
       <Modal open={add} onClose={() => setAdd(false)} title={`הוספה ל${categories[tab] || ""}`}>
         <form onSubmit={submit} className="space-y-3">
